@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: riscv64gc-unknown-none-elf
+
+      - name: Build kernel
+        run: cargo build --release
+
+      - name: Install QEMU
+        run: sudo apt-get update && sudo apt-get install -y qemu-system-misc
+
+      - name: Boot smoke test
+        run: |
+          timeout 10 qemu-system-riscv64 -machine virt -nographic -bios none \
+            -kernel target/riscv64gc-unknown-none-elf/release/myos \
+            < /dev/null > boot.log 2>&1 || true
+          cat boot.log
+          grep -q "MyOS v0.1" boot.log
+
+      - name: Upload kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: myos-kernel
+          path: target/riscv64gc-unknown-none-elf/release/myos

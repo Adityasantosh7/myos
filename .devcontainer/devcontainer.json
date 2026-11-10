@@ -1,0 +1,14 @@
+{
+  "name": "MyOS (RISC-V + Rust)",
+  "image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",
+  "postCreateCommand": "sudo apt-get update && sudo apt-get install -y qemu-system-misc make && rustup target add riscv64gc-unknown-none-elf",
+  "customizations": {
+    "vscode": {
+      "extensions": ["rust-lang.rust-analyzer"],
+      "settings": {
+        "rust-analyzer.cargo.target": "riscv64gc-unknown-none-elf",
+        "rust-analyzer.check.allTargets": false
+      }
+    }
+  }
+}
